@@ -48,7 +48,7 @@ function Listing () : JSX.Element {
 			
 		}
 
-		// getPokemon();
+		getPokemon();
 	}, []);
 
 	async function handleInputChange (event: ChangeEvent<HTMLInputElement>) {
