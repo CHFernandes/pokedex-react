@@ -1,6 +1,7 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header, List, SearchBar, Load, PokemonListItem } from '../styles';
+import { FiSearch } from 'react-icons/fi';
 import { api } from '../services/api';
 
 type Pokemon = {
@@ -20,7 +21,8 @@ function Listing () : JSX.Element {
 	const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
 	const [offset, setOffset] = useState(0);
 	const [loading, setLoading] = useState(true);
-
+	const [searchQuery, setSearchQuery] = useState('');
+	const [searched, setSearched] = useState(false);
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -82,7 +84,7 @@ function Listing () : JSX.Element {
 			
 		}
 
-		if(pokemonList.length + 20 < 700 && !loading) {
+		if(pokemonList.length + 20 < 700 && !loading && !searched) {
 			getPokemon();
 		}
 	}, [offset]);
@@ -93,12 +95,24 @@ function Listing () : JSX.Element {
 			return;
 		}
 
+		const { value } = event.target;
+		const search = String(value).toLowerCase();
+		setSearchQuery(search);
+		
+	}
+
+	async function handleSearch () {
+		if(loading) {
+			return;
+		}
+
 		try { 
-			const { value } = event.target;
-			const search = String(value).toLowerCase();
+			const search = searchQuery.toLowerCase();
 
 			if(search === '') {
 				const { data } = await api.get('pokemon?limit=20&offset=0');
+				setOffset(0);
+				setSearched(false);
 				const pokemonReturnData: PokemonReturnData[] = data.results;
 
 				const promises = pokemonReturnData.map(async pokemonUrl => {
@@ -125,7 +139,7 @@ function Listing () : JSX.Element {
 			}
 
 			const { data } = await api.get(`pokemon/${search}`);
-
+			setSearched(true);
 			const pokemon: Pokemon = {
 				id: data.id,
 				code: `#${String(data.id).padStart(3,'0')}`,
@@ -137,13 +151,12 @@ function Listing () : JSX.Element {
 			setPokemonList([pokemon]);
 		} catch(e) {
 			setPokemonList([]);
+			setSearched(false);
 		}
-		
 	}
 
-	function handleOpenPokemon (pokemonid: number) {
-		console.log(pokemonid);
-		navigate(`/Details/${pokemonid}`);
+	function handleOpenPokemon (pokemonId: number) {
+		navigate(`/Details/${pokemonId}`);
 	}
 
 	function handleLoadPokemon () {
@@ -164,6 +177,11 @@ function Listing () : JSX.Element {
 					placeholder='Procurar'
 					onChange={handleInputChange}
 				/>
+				<button
+					onClick={handleSearch}
+				>
+					<FiSearch />
+				</button>
 			</SearchBar>
 			<List>
 				{
@@ -180,9 +198,15 @@ function Listing () : JSX.Element {
 					})
 				}
 			</List>
-			<Load onClick={handleLoadPokemon}>
-				<span> Carregar Mais </span>
-			</Load>
+			{ 
+				!searched && (
+					<Load>
+						<button onClick={handleLoadPokemon}>
+							<span> Carregar Mais </span>
+						</button>
+					</Load>
+				)
+			}
 		</>
 	);
 }

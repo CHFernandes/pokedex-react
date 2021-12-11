@@ -1,12 +1,16 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../services/api';
 import { About, Height, Moves, Pokemon, PokemonDetails, PokemonHeader, PokemonStats, Stats, Type, TypeImage, Weight } from '../styles';
+import { FiChevronLeft } from 'react-icons/fi';
+import { GiWeight } from 'react-icons/gi';
+import { FaRulerVertical } from 'react-icons/fa';
 
 type Pokemon = {
     id: number;
     code: string;
     name: string;
+	sprite: string;
     mainType: string;
     types: string[];
     weight: string;
@@ -26,32 +30,115 @@ type Pokemon = {
 function Details(): JSX.Element {
 	const params = useParams();
 	const pokemonId = params.id;
-	console.log(pokemonId);
+	const navigate = useNavigate();
+	const defaultPokemon: Pokemon = {
+		id: 0,
+		code: '#000',
+		name: 'Ditto',
+		sprite: '',
+		mainType: '???',
+		types: [],
+		weight: '? kg',
+		height: '? m',
+		moves: [],
+		description: 'Ditto is here to placehold a pokemon',
+		stats: {
+			hp: 0,
+			atk: 0,
+			def: 0,
+			satk: 0,
+			sdef: 0,
+			spd: 0,
+		}
+	};
+	const [pokemonData, setPokemonData] = useState<Pokemon>(defaultPokemon);
+
+	useEffect(() => {
+		async function getPokemonData() {
+			const { data } = await api.get(`pokemon/${pokemonId}`);
+
+			const { abilities, height, id, name, stats, types, weight, sprites, species } = data;
+
+			const { data:speciesData } = await api.get(species.url);
+
+			const { flavor_text_entries: flavorEntries } = speciesData;
+
+			const description = String(flavorEntries[0].flavor_text).replace('', ' ');
+
+			const sprite = sprites.other['official-artwork']['front_default'];
+
+			const typesArray: string[] = types.map((type: { type: { name: string; }; }) => {
+				return type.type.name;
+			});
+
+			const movesArray: string[] = abilities.map( (ability: { ability: { name: string; }; }) => {
+				return String(ability.ability.name).charAt(0).toUpperCase() + String(ability.ability.name).slice(1);
+			});
+
+			const pokemon: Pokemon = {
+				id: Number(id),
+				code: `#${String(id).padStart(3,'0')}`,
+				name: String(name).charAt(0).toUpperCase() + String(name).slice(1),
+				sprite: String(sprite),
+				mainType: typesArray[0],
+				types: typesArray,
+				weight: `${Number(weight)/10} kg`,
+				height: `${Number(height)/10} m`,
+				moves: movesArray,
+				description: String(description),
+				stats: {
+					hp: Number(stats[0].base_stat),
+					atk: Number(stats[1].base_stat),
+					def: Number(stats[2].base_stat),
+					satk: Number(stats[3].base_stat),
+					sdef: Number(stats[4].base_stat),
+					spd: Number(stats[5].base_stat),
+				}
+			};
+			setPokemonData(pokemon);
+		}
+
+		getPokemonData();
+	}, []);
+
+	function handleGoBack () {
+		navigate('/');
+	}
 
 	return (
-		<Pokemon type='grass'>
+		<Pokemon type={pokemonData.mainType}>
 			<PokemonHeader>
-				<span>Bulbasaur</span>
-				<span>#001</span>
+				<button onClick={handleGoBack}>
+					<FiChevronLeft />
+				</button>
+				<div>
+					<span>{pokemonData.name}</span>
+					<span>{pokemonData.code}</span>
+				</div>
 			</PokemonHeader>
 			<PokemonDetails>
 				<TypeImage>
-					<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" alt="Bulbasaur" />
+					<img src={pokemonData.sprite} alt={pokemonData.name} />
 					<div>
-						<Type type='grass'>  Grass  </Type>
-						<Type type='poison'>  Poison </Type>
+						{ pokemonData.types.map( (type, index) => {
+							return (
+								<Type key={index} type={type}>
+									{type.charAt(0).toUpperCase() + type.slice(1)} 
+								</Type>
+							);
+						} ) }
 					</div>
 				</TypeImage>
 				<div>
-					<About type='grass'>
+					<About type={pokemonData.mainType}>
 						<div>
 							<span>About</span>
 						</div>
 						<div>
 							<Weight>
 								<div>
-									<img src="" alt="" />
-									<span>6.9 kg</span>
+									<GiWeight />
+									<span>{pokemonData.weight}</span>
 								</div>
 								<div>
 									<span>
@@ -61,8 +148,8 @@ function Details(): JSX.Element {
 							</Weight>
 							<Height>
 								<div>
-									<img src="" alt="" />
-									<span>0.7m</span>
+									<FaRulerVertical />
+									<span>{pokemonData.height}</span>
 								</div>
 								<div>
 									<span>
@@ -72,8 +159,11 @@ function Details(): JSX.Element {
 							</Height>
 							<Moves>
 								<div>
-									<span>Chlorophyll</span>
-									<span>Overgrow</span>
+									{pokemonData.moves.map((move, index) => {
+										return (
+											<span key={index}>{move}</span>
+										);
+									})}
 								</div>
 								<div>
 									<span>
@@ -83,20 +173,20 @@ function Details(): JSX.Element {
 							</Moves>
 						</div>
 						<div>
-							<p>descrição</p>
+							<p>{pokemonData.description}</p>
 						</div>
 					</About>
 				</div>
-				<PokemonStats type='grass'>
+				<PokemonStats type={pokemonData.mainType}>
 					<span>Base Stats</span>
 					<div>
 						<span>
 							HP
 						</span>
 						<div>
-							<span>045</span>
+							<span>{String(pokemonData.stats.hp).padStart(3,'0')}</span>
 							<div>
-								<Stats stat={45} />
+								<Stats stat={pokemonData.stats.hp} />
 							</div>
 						</div>
 					</div>
@@ -105,9 +195,9 @@ function Details(): JSX.Element {
 							ATK
 						</span>
 						<div>
-							<span>049</span>
+							<span>{String(pokemonData.stats.atk).padStart(3,'0')}</span>
 							<div>
-								<Stats stat={49} />
+								<Stats stat={pokemonData.stats.atk} />
 							</div>
 						</div>
 					</div>
@@ -116,9 +206,9 @@ function Details(): JSX.Element {
 							DEF
 						</span>
 						<div>
-							<span>049</span>
+							<span>{String(pokemonData.stats.def).padStart(3,'0')}</span>
 							<div>
-								<Stats stat={49} />
+								<Stats stat={pokemonData.stats.def} />
 							</div>
 						</div>
 					</div>
@@ -127,9 +217,9 @@ function Details(): JSX.Element {
 							SATK
 						</span>
 						<div>
-							<span>085</span>
+							<span>{String(pokemonData.stats.satk).padStart(3,'0')}</span>
 							<div>
-								<Stats stat={85} />
+								<Stats stat={pokemonData.stats.satk} />
 							</div>
 						</div>
 					</div>
@@ -138,9 +228,9 @@ function Details(): JSX.Element {
 							SDEF
 						</span>
 						<div>
-							<span>085</span>
+							<span>{String(pokemonData.stats.sdef).padStart(3,'0')}</span>
 							<div>
-								<Stats stat={85} />
+								<Stats stat={pokemonData.stats.sdef} />
 							</div>
 						</div>
 					</div>
@@ -149,9 +239,9 @@ function Details(): JSX.Element {
 							SPD
 						</span>
 						<div>
-							<span>045</span>
+							<span>{String(pokemonData.stats.spd).padStart(3,'0')}</span>
 							<div>
-								<Stats stat={45} />
+								<Stats stat={pokemonData.stats.spd} />
 							</div>
 						</div>
 					</div>

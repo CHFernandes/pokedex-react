@@ -34,10 +34,6 @@ const typeColorObject: TypeColorObject = {
 	'???': '#68A090',
 };
 
-function calculateStatLength(stat: number){
-	const length = (stat * 100) / 180;
-}
-
 export const GlobalStyle = createGlobalStyle`
   * {
     margin: 0;
@@ -80,6 +76,20 @@ export const SearchBar = styled.div`
 		text-align: center;
 	}
 
+	button {
+		margin-left: 2rem;
+		background: #8ACEF6;
+		border-radius: 10rem;
+		width: 5%;
+		height: 100%;
+		cursor: pointer;
+
+		svg {
+			width: 50%;
+			height: 50%;
+		}
+	}
+
 `;
 
 export const List = styled.div`
@@ -120,17 +130,24 @@ export const PokemonListItem = styled.div<PokemonProps>`
 	}
 `;
 
-export const Load = styled.button`
-	background: #8ACEF6;
+export const Load = styled.div`
+	display: flex;
+	justify-content: center;
 	width: 100%;
 	height: 5rem;
-	border-radius: 1rem;
-	cursor: pointer;
-	text-align: center;
 	margin-top: 3rem;
+	margin-bottom: 1rem;
 
-	span { 
-		font-size: 2rem;
+	button {
+		width: 80%;
+		background: #8ACEF6;
+		border-radius: 1rem;
+		cursor: pointer;
+		text-align: center;
+
+		span { 
+			font-size: 2rem;
+		}
 	}
 `;
 
@@ -148,22 +165,44 @@ export const Pokemon = styled.div<PokemonProps>`
 `;
 
 export const PokemonHeader = styled.div`
+	margin-top: 1rem;
 	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	width: 100%;
+	flex-direction: row;
 
-	span { 
+	button {
+		cursor: pointer;
 		color: #FFF;
+		margin-left: 1rem;
+		margin-right: 3rem;
+		height: 100%;
+		border: none;
+		outline: none;
+		background: none;
 
-		&:first-child {
-			font-size: 2rem;
-			font-weight: bold;
+		svg {
+			height: 100%;
+			width: 100%;
 		}
+	}
 
-		&:last-child {
-			font-size: 1.5rem;
-			font-weight: bold;
+	div{
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+
+		span { 
+			color: #FFF;
+
+			&:first-child {
+				font-size: 2rem;
+				font-weight: bold;
+			}
+
+			&:last-child {
+				font-size: 1.5rem;
+				font-weight: bold;
+			}
 		}
 	}
 `;
@@ -186,7 +225,7 @@ export const TypeImage = styled.div`
 	}
 
 	div { 
-		margin-top: 2rem;
+		margin-top: 3rem;
 		display: flex;
 		flex-direction: row;
 		justify-items: space-between;
@@ -241,8 +280,9 @@ export const Weight = styled.div`
 		}
 
 		&:first-child {
-			flex-direction: column;
+			flex-direction: row;
 			span { 
+				margin-left: 0.5rem;
 				font-size: 1rem;
 				color: #040404;
 			}
@@ -269,8 +309,9 @@ export const Height = styled.div`
 		}
 
 		&:first-child {
-			flex-direction: column;
+			flex-direction: row;
 			span { 
+				margin-left: 0.5rem;
 				font-size: 1rem;
 				color: #040404;
 			}
@@ -341,7 +382,7 @@ export const PokemonStats = styled.div<PokemonProps>`
 			border-radius:1rem;
 			span { 
 				text-align: center;
-				color: #000;
+				color: #040404;
 				border-right: 0;
 				padding-right: 0;
 			}

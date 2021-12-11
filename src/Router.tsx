@@ -4,7 +4,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Listing from './pages/Listing';
 import Details from './pages/Details';
 
-function Router () {
+function Router (): JSX.Element {
 	return (
 		<BrowserRouter>
 			<Routes>
