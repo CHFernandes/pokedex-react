@@ -1,11 +1,13 @@
 import React from 'react';
-import Listing from './pages/Listing';
+import Router from './Router';
+import { GlobalStyle } from './styles';
 
 function App(): JSX.Element {
 	return (
-		<div>
-			<Listing />
-		</div>
+		<>
+			<GlobalStyle />
+			<Router />
+		</>
 	);
 }
 
