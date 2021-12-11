@@ -1,6 +1,4 @@
-# Opus-Fenestra
-
-Este projeto é um trabalho de conclusão de curso de engenharia de software no ano de 2021.
+# Pokedex-react
 
 Pequeno projeto para listar e mostrar detalhes de pokemons
 
