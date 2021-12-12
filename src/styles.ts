@@ -247,7 +247,7 @@ export const About = styled.div<PokemonProps>`
 	flex-direction: column;
 	justify-items: center;
 	align-items: center;
-	margin-top: 1.5rem;
+	margin-top: 1rem;
 
 	div { 
 		display: flex;
@@ -350,13 +350,13 @@ export const PokemonStats = styled.div<PokemonProps>`
 	flex-direction: column;
 	align-items: center;
 	justify-items: center;
-	margin-top: 2rem;
+	margin-top: 1.5rem;
 	width: 100%;
 
 	span { 
 		color: ${ props => typeColorObject[props.type]};
 		font-size: 2rem;
-		margin-bottom: 1.5rem;
+		margin-bottom: 1rem;
 		font-weight: bold;
 		text-align: right;
 	}
